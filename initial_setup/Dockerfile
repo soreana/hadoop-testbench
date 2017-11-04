@@ -38,3 +38,19 @@ RUN apt-get clean && \
 
 # test java
 RUN java -version
+
+# install maven
+RUN sudo apt-get install software-properties-common && \
+	sudo apt-add-repository universe && \
+	sudo apt-get update && \
+	sudo apt-get install -y maven
+
+# test maven
+RUN mvn -version
+
+# install protoc
+RUN sudo apt-get update && \
+        sudo apt-get -y install protobuf-compiler
+
+# test protoc
+RUN protoc --version
