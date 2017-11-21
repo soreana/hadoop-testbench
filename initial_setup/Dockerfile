@@ -22,7 +22,7 @@ RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 # java repository setup
 RUN sudo apt-get install -y software-properties-common python-software-properties && \
 	sudo add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" && \
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886
+	sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-keys C2518248EEA14886
 
 # accept Oracle licence
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
@@ -58,3 +58,7 @@ RUN protoc --version
 # install git
 RUN sudo apt-get update && \
         sudo apt-get -y install git
+
+# install native libraries
+RUN sudo apt-get update && \
+	sudo apt-get -y install build-essential autoconf automake libtool cmake zlib1g-dev pkg-config libssl-dev
