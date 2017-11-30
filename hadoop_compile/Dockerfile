@@ -21,16 +21,17 @@ WORKDIR /my-hadoop/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server
 # remove old resource manager
 RUN rm -rf ./hadoop-yarn-server-resourcemanager
 # replace new one
-#RUN git clone git@172.18.130.25:hadoop-yarn-server-resourcemanager.git hadoop-yarn-server-resourcemanager
-#RUN ls 
+RUN git clone git@172.18.130.25:hadoop-yarn-server-resourcemanager.git hadoop-yarn-server-resourcemanager
 
-# to do get scheduler form git
+
 # shouldn't cache these lines
-
-# ARG CACHEBUST=1
-# RUN git pull origin master
+ARG CACHEBUST=1
+WORKDIR /my-hadoop/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager
+RUN git pull origin master
 
 # build project from dist directory
+WORKDIR /my-hadoop/hadoop-dist
+RUN mvn package -Pdist -DskipTests -Dtar
 
 # setup hadoop directory
 # RUN cp ./hadoop-dist/target/hadoop-2.7.1.tar.gz /usr/local/hadoop.tar.gz
