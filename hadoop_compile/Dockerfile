@@ -28,10 +28,16 @@ RUN git clone git@172.18.130.25:hadoop-yarn-server-resourcemanager.git hadoop-ya
 ARG CACHEBUST=1
 WORKDIR /my-hadoop/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager
 RUN git pull origin master
+RUN mvn install -Pdist -DskipTests -Dtar
+
+# copy builded jar files to where dist module can see
+RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/
+RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/
+RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-test-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/
 
 # build project from dist directory
 WORKDIR /my-hadoop/hadoop-dist
-RUN mvn package -Pdist -DskipTests -Dtar
+RUN mvn install -Pdist -DskipTests -Dtar
 
 # setup hadoop directory
 # RUN cp ./hadoop-dist/target/hadoop-2.7.1.tar.gz /usr/local/hadoop.tar.gz
@@ -46,6 +52,11 @@ RUN mvn package -Pdist -DskipTests -Dtar
 # RUN echo $PATH
 # RUN echo $JAVA_HOME
 
-
-
+# test changed class
+# RUN cp ./target/hadoop-2.7.1.tar.gz /
+# WORKDIR /
+# RUN tar xvzf hadoop-2.7.1.tar.gz
+# RUN pwd
+# RUN unzip /hadoop-2.7.1/share/hadoop/yarn/sources/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar -d .
+# WORKDIR /org/apache/hadoop/yarn/server/resourcemanager/scheduler
 
