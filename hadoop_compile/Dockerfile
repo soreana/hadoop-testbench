@@ -26,37 +26,49 @@ RUN git clone git@172.18.130.25:hadoop-yarn-server-resourcemanager.git hadoop-ya
 
 # shouldn't cache these lines
 ARG CACHEBUST=1
-WORKDIR /my-hadoop/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager
-RUN git pull origin master
-RUN mvn install -Pdist -DskipTests -Dtar
-
-# copy builded jar files to where dist module can see
-RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/
-RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/
-RUN cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-test-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/
+RUN cd /my-hadoop/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager && \
+	git pull origin master && \
+	mvn install -Pdist -DskipTests -Dtar && \
+	cp ./target/hadoop-yarn-server-resourcemanager-2.7.1.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/ && \
+	cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/ && \
+	cp ./target/hadoop-yarn-server-resourcemanager-2.7.1-test-sources.jar /my-hadoop/hadoop-yarn-project/target/hadoop-yarn-project-2.7.1/share/hadoop/yarn/sources/ && \
+	mvn clean
 
 # build project from dist directory
-WORKDIR /my-hadoop/hadoop-dist
-RUN mvn install -Pdist -DskipTests -Dtar
-
-# setup hadoop directory
-# RUN cp ./hadoop-dist/target/hadoop-2.7.1.tar.gz /usr/local/hadoop.tar.gz
-# WORKDIR /usr/local
-# RUN tar xzf hadoop.tar.gz 
+RUN cd /my-hadoop/hadoop-dist && \
+	mvn install -Pdist -DskipTests -Dtar && \
+	cp ./target/hadoop-2.7.1.tar.gz /usr/local/hadoop.tar.gz && \
+	mvn clean && \
+	cd /usr/local && \ 
+	tar xzf hadoop.tar.gz && \
+	mv hadoop-2.7.1 hadoop
+	#rm hadoop.tar.gz && \
 
 # set up environment variables
-# ENV HADOOP_HOME /usr/local/hadoop
-# ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
-# RUN echo "# Some convenient aliases and functions for running Hadoop-related commands\nunalias fs &> /dev/null\nalias fs=\"hadoop fs\"\nunalias hls &> /dev/null\nalias hls=\"fs -ls\"" >> ~/.bashrc
-# ENV PATH="${PATH}:$HADOOP_HOME/bin"
-# RUN echo $PATH
-# RUN echo $JAVA_HOME
+ENV HADOOP_HOME /usr/local/hadoop
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV HADOOP_CLASSPATH=/usr/lib/jvm/java-8-oracle/lib/tools.jar
+RUN echo "# Some convenient aliases and functions for running Hadoop-related commands\nunalias fs &> /dev/null\nalias fs=\"hadoop fs\"\nunalias hls &> /dev/null\nalias hls=\"fs -ls\"" >> ~/.bashrc
+ENV PATH="${PATH}:$HADOOP_HOME/bin"
 
 # test changed class
-# RUN cp ./target/hadoop-2.7.1.tar.gz /
-# WORKDIR /
-# RUN tar xvzf hadoop-2.7.1.tar.gz
-# RUN pwd
-# RUN unzip /hadoop-2.7.1/share/hadoop/yarn/sources/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar -d .
-# WORKDIR /org/apache/hadoop/yarn/server/resourcemanager/scheduler
+RUN cp /usr/local/hadoop.tar.gz / && \
+	cd / && \
+	tar xvzf hadoop.tar.gz && \
+	pwd && \
+	unzip /hadoop-2.7.1/share/hadoop/yarn/sources/hadoop-yarn-server-resourcemanager-2.7.1-sources.jar -d .
 
+### testing
+RUN ls
+COPY start.sh yarn-site.xml hadoop-env.sh hdfs-site.xml mapred-site.xml core-site.xml $HADOOP_HOME/etc/hadoop/
+COPY WordCount.java mahdiz.big /home/
+
+RUN mkdir -p /app/hadoop/tmp && \
+	service ssh restart && \
+	ssh-keyscan localhost  >> ~/.ssh/known_hosts && \
+	ssh-keyscan 0.0.0.0  >> ~/.ssh/known_hosts && \
+	hdfs namenode -format && \
+	chmod +x $HADOOP_HOME/etc/hadoop/start.sh
+	
+WORKDIR /home/
+ENTRYPOINT $HADOOP_HOME/etc/hadoop/start.sh && /bin/bash
