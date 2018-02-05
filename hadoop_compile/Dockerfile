@@ -43,7 +43,8 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV HADOOP_CLASSPATH=/usr/lib/jvm/java-8-oracle/lib/tools.jar
 RUN echo "# Some convenient aliases and functions for running Hadoop-related commands\nunalias fs &> /dev/null\nalias fs=\"hadoop fs\"\nunalias hls &> /dev/null\nalias hls=\"fs -ls\"" >> ~/.bashrc
 ENV PATH="${PATH}:$HADOOP_HOME/bin"
-COPY start.sh yarn-site.xml hadoop-env.sh hdfs-site.xml mapred-site.xml core-site.xml $HADOOP_HOME/etc/hadoop/
+COPY start.sh yarn-site.multi-node.xml core-site.multi-node.xml hdfs-site.multi-node.xml \
+        yarn-site.xml hadoop-env.sh hdfs-site.xml mapred-site.xml core-site.xml $HADOOP_HOME/etc/hadoop/
 COPY WordCount.java mahdiz.big /home/
 
 RUN mkdir -p /app/hadoop/tmp && \
