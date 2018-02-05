@@ -37,6 +37,7 @@ RUN cd /my-hadoop/hadoop-dist && \
 	mv hadoop-2.7.1 hadoop
 
 # set up environment variables and conffig files
+ARG RECONFIG=1
 ENV HADOOP_HOME /usr/local/hadoop
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV HADOOP_CLASSPATH=/usr/lib/jvm/java-8-oracle/lib/tools.jar
@@ -53,4 +54,4 @@ RUN mkdir -p /app/hadoop/tmp && \
 	chmod +x $HADOOP_HOME/etc/hadoop/start.sh
 	
 WORKDIR /home/
-ENTRYPOINT $HADOOP_HOME/etc/hadoop/start.sh && /bin/bash
+#ENTRYPOINT $HADOOP_HOME/etc/hadoop/start.sh && /bin/bash
