@@ -23,3 +23,6 @@ docker build -t hadoop --build-arg CACHEBUST=$(date +%s) .
 ## setup network
     1. create network : docker network create --subnet=172.18.0.0/16 hadoop-cluster
     2. attach to network : docker run --net hadoop-cluster --ip 172.18.0.22 -it ubuntu bash
+
+## run containernet
+    1. sudo python cluster.py
