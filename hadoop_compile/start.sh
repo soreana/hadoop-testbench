@@ -30,14 +30,19 @@ echo ${HOST_NUMBERS}
 echo ${IS_SINGLE}
 echo ${MY_ROLE}
 
+service ssh start
+
+if [ "${IS_SINGLE}" == false ]; then
+    mv $HADOOP_HOME/etc/hadoop/yarn-site.multi-node.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml 
+    mv $HADOOP_HOME/etc/hadoop/core-site.multi-node.xml $HADOOP_HOME/etc/hadoop/core-site.xml 
+    mv $HADOOP_HOME/etc/hadoop/hdfs-site.multi-node.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml 
+fi
+
 if [ "${IS_SINGLE}" == false ] && [ "${MY_ROLE}" == "master" ]; then
     echo "$HADOOP_HOSTS" | \
         sed -e $'s/,/\\\n/g' | \
         awk '{print $2}' | \
         while read line ; do ssh-keyscan ${line} >> ~/.ssh/known_hosts ; done
-    mv $HADOOP_HOME/etc/hadoop/yarn-site.multi-node.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml 
-    mv $HADOOP_HOME/etc/hadoop/core-site.multi-node.xml $HADOOP_HOME/etc/hadoop/core-site.xml 
-    mv $HADOOP_HOME/etc/hadoop/hdfs-site.multi-node.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml 
 
     $HADOOP_HOME/sbin/start-dfs.sh && \
         $HADOOP_HOME/sbin/start-yarn.sh && \

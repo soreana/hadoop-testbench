@@ -26,3 +26,6 @@ docker build -t hadoop --build-arg CACHEBUST=$(date +%s) .
 
 ## run containernet
     1. sudo python cluster.py
+
+## useful
+    1. hadoop fs -stat %r /user/sina/data/mahdiz.big
